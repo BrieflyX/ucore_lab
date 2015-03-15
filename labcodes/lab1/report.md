@@ -31,7 +31,14 @@
 
 3. 在上一步断在0x7c00处时，实际已经处在bootasm.S的入口处，此时直接输入x /20i $eip指令，即可看到接下来的20条指令。与bootasm.S比较，发现与文件中的指令一致。
 
-4. 
+4. 在gdbinit中写入如下指令
+'''
+    file bin/kernel
+    target remote:1234
+    b kern_init
+    c
+'''
+让程序在kern_init函数入口处设置断点停止，然后可以使用n命令一条一条代码向下执行，可以看到console初始化的过程以及屏幕上显示出""(THU.CST) os is loading ..."，一直到最后的while(1)，程序就进入循环。
 
 ## 练习3
 
@@ -95,3 +102,28 @@ for (; ph < eph; ph ++) {
 最后从e_entry处开始执行，进入kernel代码。
 
 ## 练习5
+
+因为函数调用时需要将ebp和eip分别压栈以保存栈帧结构和返回地址，故根据当前的ebp值就可以一直迭代栈中的调用链，每次在栈中读出每个函数调用时的ebp和eip即可，根据kdebug.c中给出的注释完成代码。执行make qemu得到以下输出
+'''
+ebp:0x00007b18 eip:0x0010095c args:0x00010094 0x00000000 0x00007b48 0x0010007f
+    kern/debug/kdebug.c:307: print_stackframe+22
+ebp:0x00007b28 eip:0x00100c53 args:0x00000000 0x00000000 0x00000000 0x00007b98
+    kern/debug/kmonitor.c:125: mon_backtrace+10
+ebp:0x00007b48 eip:0x0010007f args:0x00000000 0x00007b70 0xffff0000 0x00007b74
+    kern/init/init.c:48: grade_backtrace2+19
+ebp:0x00007b68 eip:0x001000a0 args:0x00000000 0xffff0000 0x00007b94 0x00000029
+    kern/init/init.c:53: grade_backtrace1+27
+ebp:0x00007b88 eip:0x001000bc args:0x00000000 0x00100000 0xffff0000 0x00100043
+    kern/init/init.c:58: grade_backtrace0+19
+ebp:0x00007ba8 eip:0x001000dc args:0x00000000 0x00000000 0x00000000 0x00103240
+    kern/init/init.c:63: grade_backtrace+26
+ebp:0x00007bc8 eip:0x00100050 args:0x00000000 0x00000000 0x00010094 0x00000000
+    kern/init/init.c:28: kern_init+79
+ebp:0x00007bf8 eip:0x00007d66 args:0xc031fcfa 0xc08ed88e 0x64e4d08e 0xfa7502a8
+    <unknow>: -- 0x00007d65 --
+'''
+
+最后一行的<unknow>是堆栈初始化后首次使用的函数，在bootasm.S的最后使用了call bootmain调用bootmain.c中的bootmain函数。
+此时ebp被保存下来，bootmain函数的ebp即为0x7bf8，而调用它的地址eip为0x7d66是call bootmain这条指令所在的位置。
+
+## 练习6
