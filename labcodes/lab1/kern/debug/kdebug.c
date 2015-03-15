@@ -312,7 +312,7 @@ print_stackframe(void) {
         cprintf ("args:0x%08x 0x%08x 0x%08x 0x%08x", *args, *(args+1), *(args+2), *(args+3));
         cprintf ("\n");
         print_debuginfo(eip - 1);
-        eip = *((uint32_t *)eip + 1);
+        eip = *((uint32_t *)ebp + 1);
         ebp = *((uint32_t *)ebp);
     }
 }
