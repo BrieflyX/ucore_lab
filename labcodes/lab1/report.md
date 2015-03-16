@@ -38,7 +38,7 @@
     b kern_init
     c
 '''
-让程序在kern_init函数入口处设置断点停止，然后可以使用n命令一条一条代码向下执行，可以看到console初始化的过程以及屏幕上显示出""(THU.CST) os is loading ..."，一直到最后的while(1)，程序就进入循环。
+让程序在kern_init函数入口处设置断点停止，然后可以使用n命令一条一条代码向下执行，可以看到console初始化的过程以及屏幕上显示出"(THU.CST) os is loading ..."，一直到最后的while(1)，程序就进入循环。
 
 ## 练习3
 
