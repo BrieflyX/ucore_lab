@@ -65,6 +65,72 @@
     74862 bytes (75 kB) copied, 0.000183689 s, 408 MB/s
 ```
 
+从输出可以看出首先编译链接了所有kernel的源码文件，然后编译了工具程序sign.c，用这个程序生成了bin/bootblock文件，随后使用dd命令对kernel，bootblock这2个文件进行打包，将它们都写入ucore.img文件中。
+从makefile的代码来看，生成的UCOREIMG的方法是
+
+```
+    $(UCOREIMG): $(kernel) $(bootblock)
+        $(V)dd if=/dev/zero of=$@ count=10000
+        $(V)dd if=$(bootblock) of=$@ conv=notrunc
+        $(V)dd if=$(kernel) of=$@ seek=1 conv=notrunc
+```
+
+它依赖于kernel与bootblock的生成。
+生成kernel的方法是
+
+```
+    $(kernel): $(KOBJS)
+        @echo + ld $@
+        $(V)$(LD) $(LDFLAGS) -T tools/kernel.ld -o $@ $(KOBJS)
+        @$(OBJDUMP) -S $@ > $(call asmfile,kernel)
+        @$(OBJDUMP) -t $@ | $(SED) '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(call symfile,kernel)
+```
+
+关键在于输出中的链接指令
+
+```
+    ld -m elf_i386 -nostdlib -T tools/kernel.ld -o bin/kernel ...
+    参数含义:
+        -m elf_i386 使用i386的链接方式
+        -nostdlib 不使用标准库
+        -T 使用连接脚本tools/kernel.ld
+```
+
+生成bootblock的方法是
+
+```
+    $(bootblock): $(call toobj,$(bootfiles)) | $(call totarget,sign)
+        @echo + ld $@
+        $(V)$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 $^ -o $(call toobj,bootblock)
+        @$(OBJDUMP) -S $(call objfile,bootblock) > $(call asmfile,bootblock)
+        @$(OBJCOPY) -S -O binary $(call objfile,bootblock) $(call outfile,bootblock)
+        @$(call totarget,sign) $(call outfile,bootblock) $(bootblock)
+```
+
+关键也在于其中的链接命令
+
+```
+    ld -m elf_i386 -nostdlib -N -e start -Ttext 0x7C00 obj/boot/bootasm.o obj/boot/bootmain.o -o obj/bootblock.o
+    参数含义:
+        -m elf_i386 使用i386的链接方式
+        -nostdlib 不使用标准库
+        -N 把text和data节设置为可读写
+        -e start 指定入口点
+        -Ttext 指定节在输出文件中的绝对地址
+```
+
+最后的dd命令
+
+```
+    dd if=/dev/zero of=bin/ucore.img count=10000
+    dd if=bin/bootblock of=bin/ucore.img conv=notrunc
+    dd if=bin/kernel of=bin/ucore.img seek=1 conv=notrunc
+```
+
+if为输入文件，of为输出文件，count为复制区块的大小，默认每块是512bytes故10000块是5.1MB空间。第1个dd从/dev/zero产生'\x00'字符输出到ucore.img，第2个dd将bootblock的512bytes写入ucore.img中，最后一个dd的seek=1偏移1个块，即将kernel写在ucore.img中bootblock之后的位置。
+
+上述过程完成后就生成了ucore.img。
+
 2. 阅读sign.c的代码可以看出，其开辟了512字节的buffer并写入最多510字节，而最后两个字节一定被填充为0x55与0xAA，这就是符合规范的主引导扇区特征。
 
 ## 练习2
