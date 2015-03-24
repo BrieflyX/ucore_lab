@@ -1,4 +1,4 @@
 file bin/kernel
 target remote :1234
-b kern_init 
+b kern_init
 c
