@@ -11,11 +11,17 @@ uCore OS Labs是用于清华大学计算机系本科操作系统课程的教学�
 5. 每天（一周七日）都有助教或老师在piazza在线答疑。如在[在线OS课程问题集](http://xuyongjiande.gitbooks.io/os-qa/)没找到解答，可到[piazza在线OS课程问答和交流区](https://piazza.com/tsinghua.edu.cn/spring2015/30240243x/home)提问。（QQ群 181873534主要用于本课程和OS相关事件发布，以及各种一般性交流）；
 6. 可进一步在[学堂在线](https://www.xuetangx.com/courses/TsinghuaX/30240243X/2015_T1/about)或[在线的操作系统课程练习题](https://www.gitbook.io/book/xuyongjiande/os_exercises)完成实验相关的练习题；
 
+## 四种学习目标和对应手段
+1. 掌握OS基本概念：看在线课程，能理解OS原理与概念；看在线实验指导书并分析源码，能理解labcodes_answer的labs运行结果
+2. 掌握OS设计实现：在1的基础上，能够通过编程完成labcodes的8个lab实验中的基本练习和实验报告
+3. 掌握OS核心功能：在2的基础上，能够通过编程完成labcodes的8个lab实验中的challenge练习
+4. 掌握OS科学研究：在3的基础上，能够通过阅读论文、设计、编程、实验评价等过程来完成课程设计（大实验）
+
 【**注意**】
   - **筑基内功**--请提前学习计算机原理、C语言、数据结构课程
   - **工欲善其事，必先利其器**--请掌握七种武器  [实验常用工具列表](https://github.com/objectkuan/ucore_docs/blob/master/lab0/lab0_ref_ucore-tools.md)
   - **学至于行之而止矣**--请在实验中体会操作系统的精髓
-  - **打通任督二脉**--lab1和lab2比较困难，有些同学由于畏难而止步与此，很可惜。通过lab1和lab2后，对计算机原理中的中断、段页表机制、特权级等的理解会更深入，等会有等同于打通了任督二脉，后面的实验将一片坦途。
+  - **打通任督二脉**--lab1和lab2与x86硬件相关性较大，比较困难，有些同学由于畏难而止步与此，很可惜！仅仅熟读内功心法是不够的，通过实践lab1和lab2后，对计算机原理中的中断、段页表机制、特权级等的理解会更深入和贴近实际，这等同于打通了任督二脉，后面的实验将一片坦途。
   
  
 # 实验内容
@@ -41,15 +47,16 @@ uCore OS Labs是用于清华大学计算机系本科操作系统课程的教学�
 
 
 ## 实验环境
-ucore OS实验主要在Linux环境下开发，有如下四种方法。
+ucore OS实验主要在Linux环境下开发，有如下五种方法。
 
 ### 一、[在线实验--基于"实验楼"在线平台](http://www.shiyanlou.com/courses/221)
 特点：不用在本机配置环境或安装虚拟机，你需要的是可以可以上网的网络浏览器，实验都可在网上完成！感谢[实验楼](http://www.shiyanlou.com/)提供的支持！
 
 ### 二、Windows下基于MingW进行实验
-特点：可在Windows环境下完成实验。不用安装Linux，只需在Windows上安装相关软件即可。不过安装较复杂。
+特点：可在Windows环境下完成实验。不用安装Linux，只需在Windows上安装相关软件即可。
 
-- windows下如何配置ucore实验环境：这种方式不用安装Linux，感谢“下来障”同学提供的[配置教程](http://pan.baidu.com/s/1i3JxZZR)
+- [windows下的ucore实验环境安装包](http://pan.baidu.com/s/1qWPtHxy)：下载安装即可。感谢杨海宇同学提供！
+- [windows下手动配置ucore实验环境说明文档](http://pan.baidu.com/s/1i3JxZZR)：看你的安装能力。感谢“下来障”同学提供！
 
 [NOTICE] 没有足够的技术支持，希望有感兴趣的生成一个安装软件包和中文使用说明，方便大家使用！
 
@@ -91,7 +98,28 @@ C:\Users\VirtualBox VMs\
 建议a: 设置虚拟硬盘的大小为8GB以上，虚拟内存在1B以上。
 建议b: 如果你的机器安装的是32位的windows，则下载32位的ubuntu 14.04 32bit img镜像。
 
-### 四、手动在物理PC中安装环境
+
+### 四、在MAC OS下进行实验
+
+感谢 altkatz！
+
+Using gcc49
+
+#### 1.install [homebrew](http://brew.sh/)
+
+#### 2.install binutils, gcc, gdb targeting i386-elf
+
+* `brew tap altkatz/homebrew-gcc_cross_compilers` 
+* `brew install i386-elf-gcc` # may take an hour
+* `brew install i386-elf-gdb` 
+
+#### 3. install qemu-system-i386
+
+* `brew install qemu`
+
+### 五、手动在物理PC中安装环境
+
+
 -------------------------------------
 特点：性能最好，但安装有一定难度，需要对Linux比较熟悉
 
@@ -195,6 +223,7 @@ OS161教学操作系统、以及Linux-2.4内核。
 
 ucore OS中包含的xv6&jos代码版权属于Frans Kaashoek, Robert Morris,
 and Russ Cox，使用MIT License。ucore OS中包含的OS/161代码版权属于
-David A. Holland。其他代码版权属于陈渝、王乃铮、向勇，并采用GPL License.
-ucore OS相关的文档版权属于陈渝、向勇，并采用 Creative Commons 
-Attribution/Share-Alike (CC-BY-SA) License. 
+David A. Holland。包含的ostep练习的版权属于Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau。其他内部开发的ucore OS和相关练习的代码版权属于
+陈渝、王乃铮、向勇，并采用GPL License. ucore OS相关的文档版权属于
+陈渝、向勇，并采用 
+Creative Commons Attribution/Share-Alike (CC-BY-SA) License. 
