@@ -27,14 +27,17 @@ first-fit的实现主要由以下几个部分组成
 #define PTE_U           0x004                   // 用户态使用，用于用户态管理。
 #define PTE_PWT         0x008                   // 是否写直达，用于cache的写回。
 #define PTE_PCD         0x010                   // 禁用cache，用于cache系统。
-#define PTE_A           0x020                   // Accessed
+#define PTE_A           0x020                   // 是否被访问过
 #define PTE_D           0x040                   // 脏位，被改写，用于write-back写回cache。
-#define PTE_PS          0x080                   // Page Size
+#define PTE_PS          0x080                   // 页大小
 #define PTE_MBZ         0x180                   // 保留位，全部置0
 #define PTE_AVAIL       0xE00                   // 软件是否可以使用
 ```
 
-2.
+2. 
 
 ## 练习3
 
+1. Page的全局变量就表示的是物理内存中的页，也就是页表和页目录表中的表项指示的物理地址页。
+
+2. 需要将ucore的起始地址和内核虚地址设为相同的值，即改回lab1的情形，KERN_BASE设为0x100000.
