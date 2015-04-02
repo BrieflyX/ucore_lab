@@ -399,9 +399,20 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
 
     ptep = get_pte(mm->pgdir, addr, true);
     if (ptep == NULL){
-
+       cprintf ("get_pte failed!\n");
+       goto failed;
     }
-   ret = 0;
+    struct Page *page;
+    if (*ptep == 0){
+        page = pgdir_alloc_page(mm->pg_dir, addr, perm);
+        if (page == NULL){
+            cprintf ("pgdir_alloc_page failed!\n");
+            goto failed;
+        }
+    }
+    else{
+    }
+    ret = 0;
 failed:
     return ret;
 }
