@@ -66,6 +66,7 @@ struct proc_struct *idleproc = NULL;
 // init procs
 struct proc_struct *initproc1 = NULL;
 struct proc_struct *initproc2 = NULL;
+struct proc_struct *initproc3 = NULL;
 // current proc
 struct proc_struct *current = NULL;
 
@@ -100,6 +101,7 @@ alloc_proc(void) {
         proc->state = PROC_UNINIT;
         proc->pid = -1;
         proc->cr3 = boot_cr3;
+        cprintf ("alloc_page: initialize proc\n");
     }
     return proc;
 }
@@ -338,6 +340,7 @@ repeat:
 		cprintf("do_wait: has kid begin\n");
         current->state = PROC_SLEEPING;
         current->wait_state = WT_CHILD;
+        cprintf ("do_wait: switch pid %d to waiting.\n", current->pid);
         schedule();
         goto repeat;
     }
@@ -418,7 +421,7 @@ proc_init(void) {
 
     int pid1= kernel_thread(init_main, "init main1: Hello world!!", 0);
     int pid2= kernel_thread(init_main, "init main2: Hello world!!", 0);
-    int pid3= kernel_thread(init_main, "init main3: Hello earth!", 0)
+    int pid3= kernel_thread(init_main, "init main3: Hello earth!", 0);
 
     if (pid1 <= 0 || pid2<=0 || pid3 <= 0) {
         panic("create kernel thread init_main 1 or 2 or 3 failed.\n");
