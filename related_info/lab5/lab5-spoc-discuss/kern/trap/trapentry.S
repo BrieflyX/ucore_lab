@@ -40,7 +40,7 @@ __trapret:
 
     # get rid of the trap number and error code
     addl $0x8, %esp
-    iret
+    iret   # the privilege change at this point - writed by Zhongyu Pei
 
 .globl forkrets
 forkrets:
