@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 # authorized by Pei Zhongyu, could be plagiarized cuz I put it on GitHub. 
+# may change other place's code, not only comment place
 
 __author__ = 'Pei Zhongyu'
 
@@ -9,6 +10,10 @@ from optparse import OptionParser
 import random
 
 def stride_pass(joblist, quantum=1.0):
+    '''
+        Stride Algorithm
+        Ignoring overflow
+    '''
     # set for priority
     BIGSTRIDE = 100
     priority = range(1,len(joblist)+1)
