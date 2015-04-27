@@ -290,7 +290,9 @@ trap(struct trapframe *tf) {
                 do_exit(-E_KILLED);
             }
             if (current->need_resched) {
+                cprintf ("in trap : current proc %d resched.\n", current->pid);
                 schedule();
+                cprintf ("in trap : now proc is %d\n", current->pid);
             }
         }
     }
