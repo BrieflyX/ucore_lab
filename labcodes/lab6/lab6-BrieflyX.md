@@ -78,6 +78,26 @@ sched_class_proc_tick函数是一个静态函数，C中的静态函数只能在�
 
 然后是对nr_process全局变量的处理，之前的实验中在多个地方都对nr_process进行的修改，导致对这个变量的维护有一些混乱，后来查看答案后，明确只在set_links和remove_links中进行修改，否则在init_main的最后有一句assert(nr_process==2)就无法通过了。
 
+最后是一个非常严重的bug，来源于之前陈老师在4月9日的一次commit
+```
+commit 5d8e661a1ae769a1338f2880f508486f2e02247c
+Author: yuchen <yuchen@tsinghua.edu.cn>
+Date:   Thu Apr 9 20:26:03 2015 +0800
+
+    update lab6 :: deleting timer
+
+     labcodes/lab6/kern/schedule/sched.c               |   76 ---------------------
+     labcodes/lab6/kern/schedule/sched.h               |   21 ------
+     labcodes/lab6/kern/trap/trap.c                    |    9 +--
+     labcodes/lab7/kern/trap/trap.c                    |   12 ++--
+     labcodes/lab8/kern/trap/trap.c                    |   12 ++--
+     labcodes_answer/lab6_result/kern/schedule/sched.c |   75 --------------------
+     labcodes_answer/lab6_result/kern/schedule/sched.h |   21 ------
+     labcodes_answer/lab6_result/kern/trap/trap.c      |    1 -
+     8 files changed, 17 insertions(+), 210 deletions(-)
+```
+这次commit直接删除了所有计时器的实现，导致了整个ucore在调度器实现上完全fail，具体的说明已经发邮件告知陈老师。
+
 ## 实验中的知识点
 
 实验中比较重要的地方就是调度的时机，这在代码中有很好的体现，在什么位置调用了sched_class中的什么函数，进程的在什么状态应该进入队列，在什么状态应该从队列中剔除，都能在代码中找到答案。
