@@ -262,7 +262,16 @@ class cpu:
         old                 = self.memory[tmp]
         self.memory[tmp]    = self.memory[tmp] + self.registers[src] 
         self.registers[src] = old
+    
+    def compare_and_swap(self, ptr, expected, new):
+        if self.memory[ptr] == expected:
+            self.memory[ptr] = new
+        return self.memory[ptr]
 
+    def fetch_and_add(self, ptr):
+        old = self.memory[ptr]
+        self.memory[ptr] += 1
+        return old
     #
     # TEST for conditions
     #
