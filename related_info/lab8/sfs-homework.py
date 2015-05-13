@@ -263,10 +263,10 @@ class fs:
         # inc parent ref count
         # now add to directory
     # DONE
-        return tinum
+        return -1 
 
     def createFile(self, parent, newfile, ftype):
-    # YOUR CODE, YOUR ID
+    # YOUR CODE, YOUR ID 2012010685
         # find info about parent
         # is there room in the parent directory?
         # have to make sure file name is unique
@@ -276,7 +276,28 @@ class fs:
         # inc parent ref count
         # and add to directory of parent
     # DONE
-        return inum
+        inum = self.nameToInum[parent]
+        addr = self.inodes[inum].getAddr()
+        assert (addr != -1)
+        if self.data[addr].getFreeEntries() <= 0:
+            return -1
+        if self.data[addr].dirEntryExists(newfile):
+            return -1
+        new_addr = -1
+        if ftype == 'd':
+            new_dnum = self.dbitmap.alloc()
+            if new_addr == -1:
+                return -1
+        new_inum = self.ibitmap.alloc()
+        if new_inum == -1:
+            return -1
+        if ftype == 'd':
+            self.data[new_addr].addDirEntry('.', new_inum)
+            self.data[new_addr].addDirEntry('..', inum)
+        self.inodes[inum].incRefCnt()
+        self.inodes[new_inum].setAll(ftype, new_addr, 1)
+        self.data[addr].addDirEntry(newfile, new_inum)
+        return new_inum
 
     def writeFile(self, tfile, data):
         inum = self.nameToInum[tfile]
