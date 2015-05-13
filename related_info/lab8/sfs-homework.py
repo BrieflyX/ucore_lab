@@ -251,6 +251,21 @@ class fs:
     # DONE
 
         # finally, remove from files list
+        refcnt = self.inodes[inum].getRefCnt()
+        if (refcnt == 1):
+            if (self.inodes[inum].getAddr() != -1):
+                self.dbitmap.free(self.inodes[inum].getAddr())
+                self.data[self.inodes[inum].getAddr()].free()
+            self.inodes[inum].free()
+            self.ibitmap.free(inum)
+        else:
+            self.inodes[inum].decRefCnt()
+
+        parent = self.getParent(tfile)
+        inum = self.nameToInum[parent]
+        self.inodes[inum].decRefCnt()
+        addr = self.inodes[inum].getAddr()
+        self.data[addr].delDirEntry(tfile)
         self.files.remove(tfile)
         return 0
 
@@ -263,10 +278,21 @@ class fs:
         # inc parent ref count
         # now add to directory
     # DONE
-        return -1 
+        inum = self.nameToInum[parent]
+        addr = self.inodes[inum].getAddr()
+        assert(addr != -1)
+        if self.data[addr].getFreeEntries() <= 0:
+            return -1
+        if self.data[addr].dirEntryExists(newfile):
+            return -1
+        tinum = self.nameToInum[target]
+        self.inodes[tinum].incRefCnt()
+        self.inodes[inum].incRefCnt()
+        self.data[addr].addDirEntry(newfile, tinum)
+        return tinum
 
     def createFile(self, parent, newfile, ftype):
-    # YOUR CODE, YOUR ID 2012010685
+    # YOUR CODE, YOUR ID
         # find info about parent
         # is there room in the parent directory?
         # have to make sure file name is unique
@@ -285,13 +311,14 @@ class fs:
             return -1
         new_addr = -1
         if ftype == 'd':
-            new_dnum = self.dbitmap.alloc()
+            new_addr = self.dbitmap.alloc()
             if new_addr == -1:
                 return -1
         new_inum = self.ibitmap.alloc()
         if new_inum == -1:
             return -1
         if ftype == 'd':
+            self.data[new_addr].setType('d')
             self.data[new_addr].addDirEntry('.', new_inum)
             self.data[new_addr].addDirEntry('..', inum)
         self.inodes[inum].incRefCnt()
@@ -309,6 +336,17 @@ class fs:
         # no data blocks left
         # write file data
     # DONE
+        if (curSize != 0):
+            dprint('Error,file is full')
+            return -1
+        else:
+            curr_num = self.dbitmap.alloc()
+            if curr_num != -1:
+                self.data[curr_num].setType('f')
+                self.data[curr_num].addData(data)
+                self.inodes[inum].setAddr(curr_num)
+            else:
+                return -1
 
         if printOps:
             print 'fd=open("%s", O_WRONLY|O_APPEND); write(fd, buf, BLOCKSIZE); close(fd);' % tfile
@@ -446,7 +484,7 @@ parser = OptionParser()
 parser.add_option('-s', '--seed',        default=0,     help='the random seed',                      action='store', type='int', dest='seed')
 parser.add_option('-i', '--numInodes',   default=8,     help='number of inodes in file system',      action='store', type='int', dest='numInodes') 
 parser.add_option('-d', '--numData',     default=8,     help='number of data blocks in file system', action='store', type='int', dest='numData') 
-parser.add_option('-n', '--numRequests', default=10,    help='number of requests to simulate',       action='store', type='int', dest='numRequests')
+parser.add_option('-n', '--numRequests', default=20,    help='number of requests to simulate',       action='store', type='int', dest='numRequests')
 parser.add_option('-r', '--reverse',     default=False, help='instead of printing state, print ops', action='store_true',        dest='reverse')
 parser.add_option('-p', '--printFinal',  default=False, help='print the final set of files/dirs',    action='store_true',        dest='printFinal')
 
@@ -487,5 +525,3 @@ f = fs(options.numInodes, options.numData)
 #
 
 f.run(options.numRequests)
-
-
