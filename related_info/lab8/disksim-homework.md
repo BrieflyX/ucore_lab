@@ -70,12 +70,20 @@ TOTALS      Seek: 40  Rotate:275  Transfer: 60  Total: 375
 ```
 请回答每个磁盘请求序列的IO访问时间
 
+- ./disksim.py -a 0 : 195
+- ./disksim.py -a 6 : 375
+- ./disksim.py -a 30 : 375
+- ./disksim.py -a 7,30,8 : 45, 330, 420
+- ./disksim.py -a 10,11,12,13,24,1 : 135, 30, 390, 30, 330, 390
+
 ## 问题 2：请执行 SSTF磁盘调度策略
 
 ```
 ./disksim.py   -a 10,11,12,13，24,1
 ```
 请回答每个磁盘请求序列的IO访问时间
+
+- ./disksim.py -p SSTF -a 10,11,12,13,24,1 : 135, 30, 60, 330, 30, 330
 
 ## 问题 3：请执行 SCAN, C-SCAN磁盘调度策略
 
@@ -84,3 +92,5 @@ TOTALS      Seek: 40  Rotate:275  Transfer: 60  Total: 375
 ```
 请回答每个磁盘请求序列的IO访问时间
 
+- ./disksim.py -p SATF -a 10,11,12,13,24,1 : 135, 30, 60, 330, 30, 330
+- ./disksim.py -p BSATF -a 10,11,12,13,24,1 : 135, 30, 60, 330, 30, 330
