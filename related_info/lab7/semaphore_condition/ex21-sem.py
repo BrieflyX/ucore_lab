@@ -22,17 +22,19 @@ class StuThread(threading.Thread):
 
     def run(self):
         ''' go into room, test, and exit '''
-        print '[%s] coming ...' % self.getName()
+        print '[%s] coming.' % self.getName()
         self.pair.acquire()
         StuThread.pair_num += 1
         self.pair.release()
+        time.sleep(random.randint(0,2))
         while StuThread.pair_num % 2 == 1:
             pass
-        print '[%s] find the partner ...' % self.getName()
+        print '[%s] find the partner.' % self.getName()
         self.guard.acquire()
-        print '[%s] enter room...' % self.getName()
+        print '[%s] enter room.' % self.getName()
+        time.sleep(random.randint(0,2))
         self.teacher.acquire()
-        print '[%s] teacher checking...' % self.getName()
+        print '[%s] teacher checking.' % self.getName()
         time.sleep(self.test_time)
         print '[%s] Done, exit.' % self.getName()
         self.teacher.release()
@@ -43,11 +45,14 @@ N = 12
 #computer number
 M = 4    
 
+print 'N=%d' % N
+print 'M=%d' % M
+random.seed(5)
 pair = threading.Semaphore(1)
 teacher = threading.Semaphore(2)
 guard = threading.Semaphore(M)
 threads = []
 for i in range(N):
-    threads.append(StuThread('stu '+str(i), teacher, guard, pair))
+    threads.append(StuThread(str(i), teacher, guard, pair))
 for t in threads:
     t.start()
